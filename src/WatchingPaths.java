@@ -14,35 +14,6 @@ import java.util.List;
 
 public class WatchingPaths {
 	
-	/*
-	public void subDirList(String source){
-		File dir = new File(source); 
-		File[] fileList = dir.listFiles();
-		
-		try{
-			for(int i = 0 ; i < fileList.length ; i++){
-				File file = fileList[i]; 
-				if(file.isFile()){
-    // 파일이 있다면 파일 이름 출력
-					System.out.println("\t 파일 이름 = " + file.getName());
-					
-				}else if(file.isDirectory()){
-					System.out.println("디렉토리 이름 = " + file.getName());
-					System.out.println(file.getPath().toString() +System.getProperty("line.separator"));
-				
-    // 서브디렉토리가 존재하면 재귀적 방법으로 다시 탐색
-					subDirList(file.getCanonicalPath().toString()); 
-					System.out.println("directory end");
-				}
-				
-			}
-			
-		}catch(IOException e){
-			
-		}
-		
-	}
-	*/
 	public void subDirList(String source, String file_name){
 		try{
 			BufferedWriter writer= new BufferedWriter(new FileWriter(file_name));
@@ -71,21 +42,21 @@ public class WatchingPaths {
 				date = new Date(lastModified);
 				
 				if(file.isFile()){
-    // 파일이 있다면 파일 이름 출력
-					System.out.println("\t 파일 이름 = " + file.getName());
+   
+					System.out.println("\t File Name = " + file.getName());
 					r_path=file.getPath().substring(source.length(),file.getPath().length());
 					buffer = r_path.toCharArray();
 					System.out.println(r_path+ " " + sdf.format(date)+System.getProperty("line.separator"));
 					writer.write("0 " +buffer + sdf.format(date)+System.getProperty("line.separator"));
 					writer.flush();
 				}else if(file.isDirectory()){
-					System.out.println("디렉토리 이름 = " + file.getName());
+					System.out.println("Directory Name = " + file.getName());
 					r_path=file.getPath().substring(source.length(),file.getPath().length());
 					buffer = r_path.toCharArray();
 					System.out.println(r_path+ " " + sdf.format(date)+System.getProperty("line.separator"));
 					writer.write("0 " +buffer + sdf.format(date)+System.getProperty("line.separator"));
 					writer.flush();
-    // 서브디렉토리가 존재하면 재귀적 방법으로 다시 탐색
+					
 					subDirList(file.getCanonicalPath().toString(),writer); 
 					System.out.println("directory end");
 				}
@@ -115,8 +86,6 @@ public class WatchingPaths {
 
            while (true) {
                   try {
-                       
-                        // 지정된 디렉토리에 변경이되는지 이벤트를 모니터링한다.
                         WatchKey changeKey = watchService.take();
                        
                         List<WatchEvent<?>> watchEvents = changeKey.pollEvents();
