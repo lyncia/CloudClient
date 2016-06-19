@@ -50,12 +50,13 @@ public class Main {
 			_out = so.getOutputStream();
 			_dos = new DataOutputStream(_out);
 			/*
-			// init.txt전송부
+			// init.txt sending
 			String fName = source + first_send;
 			sendFile(fName);
 			System.out.println("first file sent..");
 
-			// init_serv.txt 수신부
+			// list receiving
+			 
 			String[] get_files;
 			long[] get_files_time;
 			int get_FDnum; // num of directory + file
@@ -176,7 +177,7 @@ public class Main {
 
 			byte[] data = new byte[buf_size];
 			data = new byte[buf_size];
-			// 파일 내용을 읽으면서 전송
+			
 
 			File f = new File(fName);
 			System.out.println("first file sending...");
@@ -196,8 +197,8 @@ public class Main {
 			 * _dos.close(); _bis.close(); _fis.close(); _so.close();
 			 * ss.close();
 			 */
-			System.out.println("파일 수신 작업을 완료하였습니다.");
-			System.out.println("보낸 파일의 사이즈 : " + f.length());
+			System.out.println("File sent!");
+			System.out.println("Sent file size: " + f.length());
 			return true;
 
 		} catch (SocketException ee) {
@@ -215,7 +216,6 @@ public class Main {
 	private boolean receiveFile(String fName) {
 
 		try {
-			System.out.println("data 송신 준비");
 			// fName = "C:/environment/temp/test.docx";
 
 			System.out.println(fName);
@@ -228,7 +228,7 @@ public class Main {
 			FileOutputStream _fos = new FileOutputStream(f);
 			BufferedOutputStream _bos = new BufferedOutputStream(_fos);
 
-			System.out.println(fName + "파일을 생성하였습니다.");
+			System.out.println(fName + "is created");
 
 			int len;
 			int total = _dis.read();
@@ -236,6 +236,9 @@ public class Main {
 			while ((len = _dis.read(data)) != -1) {
 				_bos.write(data, 0, len);
 				_bos.flush();
+				total -= len;
+				if(total<=0)
+					break;
 			}
 
 			/*
@@ -246,8 +249,8 @@ public class Main {
 			 * _dos.close(); _out.close(); _dis.close(); _in.close();
 			 * _so.close(); ss.close();
 			 */
-			System.out.println("파일 송신 작업을 완료하였습니다.");
-			System.out.println("받은 파일의 사이즈 : " + f.length());
+			System.out.println("File received");
+			System.out.println("Received file size: " + f.length());
 			return true;
 
 		} catch (SocketException ee) {
@@ -264,7 +267,6 @@ public class Main {
 	private boolean receiveFile(String fName, long modified) {
 
 		try {
-			System.out.println("data 송신 준비");
 			// fName = "C:/environment/temp/test.docx";
 
 			System.out.println(fName);
@@ -277,14 +279,18 @@ public class Main {
 			FileOutputStream _fos = new FileOutputStream(f);
 			BufferedOutputStream _bos = new BufferedOutputStream(_fos);
 
-			System.out.println(fName + "파일을 생성하였습니다.");
+			System.out.println(fName + "is created");
 
 			int len;
+			int total = _dis.read();
 
 			byte[] data = new byte[buf_size];
 			while ((len = _dis.read(data)) != -1) {
 				_bos.write(data, 0, len);
 				_bos.flush();
+				total -= len;
+				if(total<=0)
+					break;
 			}
 
 			f.setLastModified(modified);
@@ -297,8 +303,8 @@ public class Main {
 			 * _dos.close(); _out.close(); _dis.close(); _in.close();
 			 * _so.close(); ss.close();
 			 */
-			System.out.println("파일 송신 작업을 완료하였습니다.");
-			System.out.println("받은 파일의 사이즈 : " + f.length());
+			System.out.println("File received");
+			System.out.println("Received file size:  " + f.length());
 			return true;
 
 		} catch (SocketException ee) {
