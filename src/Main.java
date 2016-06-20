@@ -16,11 +16,11 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class Main {
-//173.156
-	public String serverIP = "163.180.116.78";
+//
+	public String serverIP = "163.180.173.156";
 	public Socket so;
 	public int buf_size = 1024;
-	public int port = 8000;
+	public int port = 1234;
 
 	public WatchingPaths wp;
 	public String source = "C:/environment/temp/";
