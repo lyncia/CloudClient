@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -14,9 +15,10 @@ import java.util.List;
 
 public class WatchingPaths {
 	
+	private String S = "C:/environment/temp/";
 	public void subDirList(String source, String file_name){
 		try{
-			BufferedWriter writer= new BufferedWriter(new FileWriter(file_name));
+			BufferedWriter writer= new BufferedWriter(new FileWriter(source + file_name));
 			subDirList(source, writer);
 		}
 		catch(IOException e)
@@ -34,7 +36,7 @@ public class WatchingPaths {
 		Long lastModified;
 		Date date;
 		String r_path;
-		char[] buffer = new char[256];
+		char[] buffer = new char[257];
 		try{
 			for(int i = 0 ; i < fileList.length ; i++){
 				File file = fileList[i];
@@ -44,21 +46,33 @@ public class WatchingPaths {
 				if(file.isFile()){
    
 					System.out.println("\t File Name = " + file.getName());
-					r_path=file.getPath().substring(source.length(),file.getPath().length());
+					r_path=file.getPath().substring(S.length(),file.getPath().length());
+					r_path=r_path.replace("\\", "/");
 					buffer = r_path.toCharArray();
+					
 					System.out.println(r_path+ " " + sdf.format(date)+System.getProperty("line.separator"));
-					writer.write("0 " +buffer + sdf.format(date)+System.getProperty("line.separator"));
+					writer.write("1 ./root/");
+					writer.write(buffer);
+					for(int k=0;k<248-buffer.length;k++)
+						writer.write(" ");
+					writer.write(" " + sdf.format(date)+ " ");
 					writer.flush();
 				}else if(file.isDirectory()){
-					System.out.println("Directory Name = " + file.getName());
-					r_path=file.getPath().substring(source.length(),file.getPath().length());
+					/*System.out.println("Directory Name = " + file.getName());
+					r_path=file.getPath().substring(S.length(),file.getPath().length());
+					r_path=r_path.replace("\\", "/");
 					buffer = r_path.toCharArray();
 					System.out.println(r_path+ " " + sdf.format(date)+System.getProperty("line.separator"));
-					writer.write("0 " +buffer + sdf.format(date)+System.getProperty("line.separator"));
+					writer.write("0 ./root/");
+					writer.write(buffer);
+					for(int k=0;k<248-buffer.length;k++)
+						writer.write(" ");
+					writer.write(" " + sdf.format(date)+ " ");
 					writer.flush();
 					
 					subDirList(file.getCanonicalPath().toString(),writer); 
 					System.out.println("directory end");
+					*/
 				}
 				
 			}

@@ -9,11 +9,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.lang.*;
 
 public class Main {
 //
@@ -36,11 +38,11 @@ public class Main {
 		wp = new WatchingPaths();
 		
 		try {
-
+			
 			so = new Socket(serverIP, port);
 			System.out.println("server connected");
 			wp.subDirList(source, first_send);
-
+		
 			_in = so.getInputStream();
 			_dis = new DataInputStream(_in);
 			_out = so.getOutputStream();
@@ -50,8 +52,16 @@ public class Main {
 			_out = so.getOutputStream();
 			_dos = new DataOutputStream(_out);
 			/*
+			byte b[] = new byte [1024];
+			
+			int leng= _dis.readInt();
+			_dis.read(b,0,leng);
+			String ss=b.toString();
+			System.out.println(b);
+			System.out.println(ss);
+			*/
 			// init.txt sending
-			String fName = source + first_send;
+			String fName =  first_send;
 			sendFile(fName);
 			System.out.println("first file sent..");
 
@@ -69,14 +79,19 @@ public class Main {
 			int isF;
 
 			// get receive list
-			get_FDnum = _dis.read();
+			get_FDnum = _dis.readInt();
 			get_files = new String[get_FDnum];
 			get_files_time = new long[get_FDnum];
+			//String fn = new String ();
+			
 			for (int i = 0; i < get_FDnum; i++) {
-				isF = _dis.read();
+				//isF = _dis.readInt();
+				isF=1;
 				if (isF == 0) // is directory -> make directory
 				{
-					fName = source + _dis.read();
+					/*fn = _dis.readUTF();
+					fn = fn.substring(7, fn.length());
+					fName = source + fn;
 					File f;
 					f = new File(fName);
 					f.mkdirs();
@@ -85,21 +100,33 @@ public class Main {
 					String newLastModified = _dis.readUTF();
 					Date newDate = sdf.parse(newLastModified);
 					f.setLastModified(newDate.getTime());
+					*/
 
 				} else if (isF == 1) // is File -> add to receive list
 				{
-					get_files[get_Fnum] = _dis.readUTF();
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd/hh/mm/ss");
-					String newLastModified = _dis.readUTF();
-					Date newDate = sdf.parse(newLastModified);
-					get_files_time[get_Fnum] = newDate.getTime();
+					//fn = "";
+					//fn += _dis.readUTF();
+					//int len ;
+					//byte[] fn = new byte[256];
+					//len = _dis.read(fn);
+					//System.out.println(fn);
+					//String ss= fn.toString();
+					//ss = ss.substring(5,len);
+					String ss =  i + ".txt";
+					ss.replace("/","\\");
+					//SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd/hh/mm/ss");
+					//String newLastModified = _dis.readUTF();
+					//Date newDate = sdf.parse(newLastModified);
+					//get_files_time[get_Fnum] = newDate.getTime();
+					//receiveFile(source+get_files[i], get_files_time[i]);
+					receiveFile(ss);
 					get_Fnum++;
 				}
 
 			}
 
 			// get send list
-			give_FDnum = _dis.read();
+			give_FDnum = _dis.readInt();
 			give_files = new String[get_FDnum];
 			for (int i = 0; i < give_FDnum; i++) {
 				isF = _dis.read();
@@ -126,7 +153,6 @@ public class Main {
 			}
 			// _dos.close(); _bis.close(); _fis.close(); so.close();
 
-*/
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -139,13 +165,11 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws IOException {
-
-		
 		Main m;
 		try {
 			m = new Main();
-			m.receiveFile("temp.jpg");
 			//m.event();
+			m.receiveFile("cat.jpg");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -178,15 +202,23 @@ public class Main {
 			byte[] data = new byte[buf_size];
 			data = new byte[buf_size];
 			
-
-			File f = new File(fName);
-			System.out.println("first file sending...");
+			File f = new File(source + fName);
+			if(!f.exists())
+			{_dos.writeInt(0); _dos.writeByte(0) ;return false;}
+			System.out.println("file sending...");
 
 			FileInputStream _fis = new FileInputStream(f);
 			BufferedInputStream _bis = new BufferedInputStream(_fis);
-
-			_dos.write(longToBytes(f.length()));
+			//_dos.writeBytes(String.valueOf(f.length()));
+			int l =(int)f.length();
+			ByteBuffer b = ByteBuffer.allocate(Integer.SIZE / 8);
+			b.putInt(l);
+			b.order(ByteOrder.LITTLE_ENDIAN);
+			_dos.write(b.array(),0,4);
+			
 			_dos.flush();
+			System.out.println("f.length(): "+(int)f.length());
+			System.out.println(longToBytes(f.length()));
 			while ((len = _bis.read(data)) != -1) {
 				_dos.write(data, 0, len);
 				_dos.flush();
@@ -210,7 +242,7 @@ public class Main {
 			e.printStackTrace();
 			return false;
 		}
-
+		
 	}
 
 	private boolean receiveFile(String fName) {
@@ -219,25 +251,33 @@ public class Main {
 			// fName = "C:/environment/temp/test.docx";
 
 			System.out.println(fName);
-			File f = new File(fName);
-			if (!f.createNewFile()) {
-				f = new File(fName);
+			
+			File f = new File(source + fName);
+			if(f.exists())
+			{
+				f.delete();
+				f.createNewFile();
+			}
+			else {
 				f.createNewFile();
 			}
 
 			FileOutputStream _fos = new FileOutputStream(f);
 			BufferedOutputStream _bos = new BufferedOutputStream(_fos);
 
-			System.out.println(fName + "is created");
+			System.out.println(fName + " is created");
 
 			int len;
-			int total = _dis.read();
+			int total = _dis.readInt();
+			System.out.println("total: " + total);
 			byte[] data = new byte[buf_size];
 			while ((len = _dis.read(data)) != -1) {
+				System.out.println(len);
 				_bos.write(data, 0, len);
 				_bos.flush();
 				total -= len;
-				if(total<=0)
+				
+				if(total==0)
 					break;
 			}
 
