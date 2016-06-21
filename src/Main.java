@@ -51,15 +51,7 @@ public class Main {
 			_dis = new DataInputStream(_in);
 			_out = so.getOutputStream();
 			_dos = new DataOutputStream(_out);
-			/*
-			byte b[] = new byte [1024];
 			
-			int leng= _dis.readInt();
-			_dis.read(b,0,leng);
-			String ss=b.toString();
-			System.out.println(b);
-			System.out.println(ss);
-			*/
 			// init.txt sending
 			String fName =  first_send;
 			sendFile(fName);
@@ -85,13 +77,13 @@ public class Main {
 			//String fn = new String ();
 			
 			for (int i = 0; i < get_FDnum; i++) {
-				//isF = _dis.readInt();
-				isF=1;
+				isF = _dis.readInt();
+				//isF=1;
 				if (isF == 0) // is directory -> make directory
 				{
-					/*fn = _dis.readUTF();
-					fn = fn.substring(7, fn.length());
-					fName = source + fn;
+					//fn = _dis.readUTF();
+					//fn = fn.substring(7, fn.length());
+					//fName = source + fn;
 					File f;
 					f = new File(fName);
 					f.mkdirs();
@@ -100,25 +92,24 @@ public class Main {
 					String newLastModified = _dis.readUTF();
 					Date newDate = sdf.parse(newLastModified);
 					f.setLastModified(newDate.getTime());
-					*/
+					
 
 				} else if (isF == 1) // is File -> add to receive list
 				{
 					//fn = "";
 					//fn += _dis.readUTF();
-					//int len ;
-					//byte[] fn = new byte[256];
-					//len = _dis.read(fn);
-					//System.out.println(fn);
-					//String ss= fn.toString();
-					//ss = ss.substring(5,len);
-					String ss =  i + ".txt";
+					int len ;
+					byte[] fn = new byte[256];
+					len = _dis.read(fn);
+					System.out.println(fn);
+					String ss= fn.toString();
+					ss = ss.substring(5,len);
+					
 					ss.replace("/","\\");
-					//SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd/hh/mm/ss");
-					//String newLastModified = _dis.readUTF();
-					//Date newDate = sdf.parse(newLastModified);
-					//get_files_time[get_Fnum] = newDate.getTime();
-					//receiveFile(source+get_files[i], get_files_time[i]);
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd/hh/mm/ss");
+					String newLastModified = _dis.readUTF();
+					Date newDate = sdf.parse(newLastModified);
+					get_files_time[get_Fnum] = newDate.getTime();
 					receiveFile(ss);
 					get_Fnum++;
 				}
